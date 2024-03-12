@@ -2,12 +2,16 @@ version: '3.8'
 services:
   pdb:
     image: postgres:16.2
-    container_name: db_postgres
+    container_name: db
     restart: always
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_DB: test  # Задаем имя базы данных
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
-      - pgdata:/var/lib/postgresql/data  # Укажите новый каталог данных
+      - pgdata:/var/lib/postgresql/data
   web:
     build:
       context: .
