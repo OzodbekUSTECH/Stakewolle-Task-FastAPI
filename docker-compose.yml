@@ -2,7 +2,7 @@ version: '3.8'
 services:
   pdb:
     image: postgres:16.2
-    container_name: db
+    container_name: db_postgres
     restart: always
     ports:
       - "5432:5432"
@@ -16,4 +16,5 @@ services:
       - 8085:8000
     depends_on:
       - pdb
-
+volumes:
+  pgdata:
