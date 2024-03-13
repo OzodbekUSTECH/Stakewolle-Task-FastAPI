@@ -5,6 +5,8 @@ from app.schemas import referral_codes as ref_code_schema
 from app.dependencies import CURRENT_USER_DEP
 from app.permissions import Permissions
 from fastapi_pagination import Page
+from fastapi_cache.decorator import cache
+
 router = APIRouter(
     prefix="/referrals",
     tags=["Referral Codes"]
@@ -29,8 +31,11 @@ async def send_referral_code_to_email(
     """
     Возможность получения реферального кода по email адресу реферера.\n
     Я понял это так:\n
-    - Если реферальный код найден, то сервис должен отправить его на электронную почту реферера.
-    - НО НЕ ВОЗВРАЩАЕТ ЕГО НА ЗАПРОС! ВМЕСТО ЭТОГО ПРОСТО СООБЩЕНИЕ
+    - Если реферальный код есть у пользователя, то сервис должен отправить его реферальный код на электронную почту реферера.
+    - НО НЕ ВОЗВРАЩАЕТ ИНФОРМАЦИЮ РЕФ. КОДА НА ЗАПРОС! ВМЕСТО ЭТОГО ПРОСТО СООБЩЕНИЕ
+
+    - ЭТОТ ENDPOINT наверное лучше сделать, как background_task, но для удостоверения, что всё отправлено успешно,
+    то можно оставить так
     """
     return await ref_codes_service.send_referral_code_to_email(
         uow=uow,
@@ -38,7 +43,12 @@ async def send_referral_code_to_email(
     )
 
 
+"""
+@cache - кешируем данные, 
+    - expire=300 в секундах (5 мин кеш)
+"""
 @router.get('/{user_id}')
+@cache(namespace="ref_codes", expire=300)
 async def get_referral_codes_of_user_by_id(
     uow: UOW_DEP,
     user_id: int

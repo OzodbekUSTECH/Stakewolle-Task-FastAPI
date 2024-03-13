@@ -28,7 +28,7 @@ class Permissions:
                 existing_ref_code: models.ReferralCode = await uow.referral_codes.get_one_or_none(code=referral_code)
                 if not existing_ref_code:
                     raise ReferralCodeDoesNotExistException
-                elif existing_ref_code.expiration_date.timestamp() > datetime.utcnow().timestamp():
+                elif existing_ref_code.expiration_date.timestamp() < datetime.utcnow().timestamp():
                     existing_ref_code.is_active = False
                     await uow.commit()
                     raise ReferralCodeExpiredException

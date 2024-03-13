@@ -2,9 +2,7 @@ from app.schemas import referral_codes as ref_code_schema
 from app.database.uow import UnitOfWork
 from app import models
 from app.utils.exceptions import (
-    UserDoesNotHaveReferralCodeException,
     UserDoesNotExistException,
-    NotAllowedToDeleteReferralCodeException
 )   
 
 from app.utils.refCode_handler import ReferralCodeHandler
@@ -72,16 +70,17 @@ class ReferralCodesService:
             if not user_with_given_email:
                 raise UserDoesNotExistException
             active_referral_code_of_user = await uow.referral_codes.get_one_active_ref_code_or_none_of_user(user_id=user_with_given_email.id)
-            if not active_referral_code_of_user:
-                active_referral_code_of_user = await self.create_referral_code(uow=uow, user=user_with_given_email)
+        #ЗДЕСЬ МЫ ВЫХОДИМ ИЗ СЕССИИ ЧТОБЫ ИЗБЕЖАТЬ ОШИБКИ С СОЗДАНИЕМ/ЗАКРЫТИЕМ СЕССИЙ, Т.К. ДАЛЬШЕ СОЗДАЕТСЯ НОВАЯ СЕССИЯ, А НЫНЕШНЯЯ ЗАКРОЕТСЯ
+        if not active_referral_code_of_user:
+            active_referral_code_of_user = await self.create_referral_code(uow=uow, user=user_with_given_email)
 
-            body = f"ВАШ РЕФЕРАЛЬНЫЙ КОД: {active_referral_code_of_user.code}\nИстекает: {active_referral_code_of_user.expiration_date.strftime("%d/%m/%Y, %H:%M:%S")}"
-               
-            return await EmailHandler.send_message(
-                emails=email,
-                subject="REFERRAL CODE",
-                body=body,
-            )
+        body = f"ВАШ РЕФЕРАЛЬНЫЙ КОД: {active_referral_code_of_user.code}\nИстекает: {active_referral_code_of_user.expiration_date.strftime("%d/%m/%Y, %H:%M:%S")}"
+            
+        return await EmailHandler.send_message(
+            emails=email,
+            subject="REFERRAL CODE",
+            body=body,
+        )
 
             
                 
