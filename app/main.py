@@ -13,7 +13,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Stakewolle Task", lifespan=lifespan)
+app = FastAPI(title="Stakewolle Task")
 add_pagination(app) #Для автогенерации пагинации
 
 

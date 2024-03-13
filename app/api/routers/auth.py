@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.post('/register', dependencies=[Depends(Permissions.is_referral_code_given_and_unexpired)])
+@router.post('/register', dependencies=[Depends(Permissions.is_referral_code_given_and_unexpired), Depends(Permissions.has_verified_email)])
 async def create_user(
     uow: UOW_DEP,
     user_data: user_schema.CreateUserSchema,

@@ -1,9 +1,10 @@
 from app.dependencies import CURRENT_USER_DEP
 from app.database.uow import UOW_DEP
-from app.utils.exceptions import  ReferralCodeExpiredException, ReferralCodeDoesNotExistException, NotAllowedMethodException
+from app.utils.exceptions import  ReferralCodeExpiredException, ReferralCodeDoesNotExistException, NotAllowedMethodException, NotVerifiedEmailException
 from fastapi import Request
 from app import models
 from datetime import datetime
+from app.utils.emailHunter import emailHunter
 
 class Permissions:
 
@@ -33,4 +34,14 @@ class Permissions:
                     await uow.commit()
                     raise ReferralCodeExpiredException
             
+        return True
+    
+
+    @classmethod
+    async def has_verified_email(cls, request: Request) -> bool:
+        body: dict = await request.json()
+        email = body.get("email")
+        if not email or emailHunter.is_verified_email(email=email):
+            raise NotVerifiedEmailException
+        
         return True

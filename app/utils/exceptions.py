@@ -52,3 +52,8 @@ class NotAllowedToDeleteReferralCodeException(BaseException):
 class NotAllowedMethodException(BaseException):
     status_code=status.HTTP_403_FORBIDDEN
     detail="Not allowed method!"
+
+
+class NotVerifiedEmailException(BaseException):
+    status_code=status.HTTP_409_CONFLICT
+    status="Неправильный или не валидный email"
